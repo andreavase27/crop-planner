@@ -23,4 +23,3 @@ class Plant:
     def get_total_plants(cls):
         return cls.total_plants
     
-
