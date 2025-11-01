@@ -2,7 +2,7 @@
 
 The program helps the user to plan a vegetable garden.
 
-# Inputs:
+INPUTS:
 
 The user will be asked to give three information:
 - season in which the user wants to start the garden;
@@ -10,7 +10,7 @@ The user will be asked to give three information:
 - number of types of vegetables to be grown;  (as type we mean the specific vegetable, as eggplant or lattuce)
 - how many people are espected to be fed with that harvest.
 
-# Outputs:
+OUTPUTS:
 
 The program will present:
 - the exact number of plants that can be planted, divided on the number of types desired;
@@ -20,3 +20,26 @@ The program will present:
 - health benefits;
 - shelf life;
 - quantity/nutritional value avaiable for person.
+
+# Repository structure
+
+├── crop_p/                     # Main Python package
+│   ├── __init__.py             # Marks the folder as a Python package
+│   ├── models.py               # Defines the Plant class (attributes and methods)
+│   ├── utils.py                # Utility functions for reading, cleaning, and transforming data
+│   ├── core.py                 # Core logic
+│   └── database.py             # Eventual database connection 
+│
+├── datasets/                   # Raw data files
+│   └── vegetables.csv          # Vegetable dataset used for calculations
+│
+├── presentation/               # Presentation and analysis 
+│   └── crop_analysis.ipynb     # Jupyter Notebook for testing, visualization, and reporting
+│
+├── tests/                      # Unit tests 
+│   └── test_core.py            # Tests 
+│
+├── .gitignore                  # Git configuration to exclude virtual environments and cache files
+├── requirements.txt            # List of required Python dependencies
+├── README.md                   # Project documentation and usage guide
+└── crop_env                    # Virtual environment for isolated package management
