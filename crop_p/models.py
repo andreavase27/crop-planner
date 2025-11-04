@@ -1,25 +1,24 @@
-class Plant:
-    """
-    Modello per una singola specie di pianta.
-    """
-    total_plants = 0
 
-    def __init__(self, name, season, growth_days, area_per_plant, yield_per_plant):
-        self.name = name
+import pandas as pd
+
+class Plant:
+    
+    def __init__(self, name, category, season, growth_days, health_benefits, nutritional_values, yield_per_plant, area_per_plant):
+        self.name = name 
+        self.category = category
         self.season = season
         self.growth_days = growth_days
-        self.area_per_plant = area_per_plant
+        self.health_benefits = health_benefits
+        self.nutritional_values = nutritional_values
         self.yield_per_plant = yield_per_plant
-        self.technique = None
-        self.adjusted_area = area_per_plant
-        self.adjusted_yield = yield_per_plant
+        self.area_per_plant = area_per_plant
 
-        Plant.total_plants += 1        # incrementa ogni volta che si crea una nuova pianta
-
-
-    def plant_description(self):
-        print(f"plant's name: {self.name}, plant's season: {self.season}")
-
-    def get_total_plants(cls):
-        return cls.total_plants
+    def show_description(self):
+        print(f"the {self.name} grows during {self.season} for about {self.growth_days}")
     
+    def space_required(self, category):
+        if 
+    
+
+
+

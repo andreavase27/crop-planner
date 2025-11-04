@@ -1,6 +1,7 @@
 # Crop-planner
 
-The program helps the user to plan a vegetable garden.
+The Crop Planner project is a Python-based analytical tool designed to help users plan an optimal vegetable garden based on available land area, number of people, and growing season.
+By combining data on plant characteristics (such as required area, growing time, yield, and seasonal suitability), the program estimates the most efficient crop mix that maximizes total yield and provides an estimated amount of vegetables per person.
 
 INPUTS:
 
@@ -25,7 +26,7 @@ The program will present:
 ```
 │
 ├── crop_p/                     # Main Python package
-│   ├── init.py             # Marks the folder as a Python package
+│   ├── init.py                 # Marks the folder as a Python package
 │   ├── models.py               # Defines the Plant class (attributes and methods)
 │   ├── utils.py                # Utility functions for reading, cleaning, and transforming data
 │   ├── core.py                 # Core logic
