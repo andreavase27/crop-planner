@@ -16,12 +16,8 @@ OUTPUTS:
 The program will present:
 - the exact number of plants that can be planted, divided on the number of types desired;
   the number of plants and the mix of vegetables is made to maximise the quantity(kg) and the nutritional values;
-- better soil conditions;
-- better climate;
-- health benefits;
-- shelf life;
-- quantity/nutritional value avaiable for person.
-
+- yield per plant and total
+- espected growth days
 # Repository structure
 ```
 │

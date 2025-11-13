@@ -1,3 +1,7 @@
+import os, sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))            # with these three lines Python will always recognize the root of the project (crop-planner/) and the sub-files.
+
 import pandas as pd
 
 # loading the dataset
@@ -19,9 +23,9 @@ category_area = {
     'Leafy': 0.20,       # es. lattuga, spinaci → fitte ma richiedono spazio per foglie
     'Fruit': 0.50,       # es. pomodoro, zucchina, peperone → richiedono supporto e spazio
     'Flower': 0.40,      # es. cavolfiore, broccoli → medie dimensioni
-    'Tuber': 0.45,       # es. patate, topinambur → più distanziate
+    'Tuber': 0.45,       # es. patate, → più distanziate
     'Legume': 0.35,      # es. fagioli, piselli → necessitano spazio verticale
-    'Bulb': 0.20,        # es. cipolla, aglio → compatte ma con distanza radici
+    'Bulb': 0.20,        # es. cipolla, aglio → compatte 
     'Grain': 0.30,       # es. mais, orzo → più spazio tra file
     'Stem': 0.50,        # es. sedano, porro → mediamente alti, necessitano aria
     'Herb': 0.15,        # es. basilico, prezzemolo → molto fitti
@@ -47,3 +51,19 @@ category_growth_days = {
     'Fern': 90
 }
 
+# Estimated average yield (kg per plant) by category
+category_yield = {        
+    'Root': 0.4,
+    'Leaf': 0.2,
+    'Fruit': 2.0,
+    'Flower': 0.6,
+    'Tuber': 1.5,
+    'Legume': 0.7,         
+    'Bulb': 0.3,       
+    'Grain': 0.8,    
+    'Stem': 0.5,       
+    'Herb': 0.1,                
+    'Cactus': 0.3,     
+    'Succulent': 0.2,  
+    'Fern': 0.15       
+}

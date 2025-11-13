@@ -14,3 +14,7 @@ psycopg2-binary
 
 # Jupyter environment
 jupyter
+
+# web app
+streamlit
+matplotlib

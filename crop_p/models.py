@@ -1,19 +1,22 @@
 
+import os, sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import pandas as pd
-from database import category_area, category_growth_days
+from crop_p.database import category_area, category_growth_days, category_yield
+
 class Plant:
     
-    def __init__(self, name, category, season, growth_days, health_benefits, nutritional_values, yield_per_plant, area_per_plant, shelf_life):
+    def __init__(self, name, category, season, area_per_plant, growth_days, shelf_life, yield_per_plant):
         self.name = name 
         self.category = category
         self.season = season
-        self.growth_days = growth_days
-        self.health_benefits = health_benefits
-        self.nutritional_values = nutritional_values
-        self.yield_per_plant = yield_per_plant
         self.area_per_plant = area_per_plant
+        self.growth_days = growth_days
         self.shelf_life = shelf_life
-
+        self.yield_per_plant = yield_per_plant
+        
     def show_description(self):
         return f"{self.name} ({self.category}) grows in {self.season} and takes {self.growth_days} days."
     
@@ -27,11 +30,14 @@ class Plant:
         """Estimate total growth time (in days) based on category and shelf life."""
         base_days = category_growth_days.get(self.category, 60)
 
-        # Usa shelf_life se disponibile per regolare la stima
-        try:
-            shelf_life_days = float(self.shelf_life) if self.shelf_life is not None else 0
-        except (TypeError, ValueError):
+        # shelf_life per regolare la stima
+        if self.shelf_life is None:
             shelf_life_days = 0
+        else:
+            try:
+                shelf_life_days = float(self.shelf_life)
+            except (TypeError, ValueError):
+                shelf_life_days = 0
 
         # Regolazione: piante con shelf life lunga crescono un po' più lentamente
         if shelf_life_days > 30:
@@ -44,33 +50,34 @@ class Plant:
         return round(growth_time, 1)
     
     def estimate_yield(self):
-        """Estimate yield (kg) based on estimated growth time and shelf life."""
+        """
+        Estimate plant yield (kg per plant) based on category and growth time.
+        Uses growth time (estimated from shelf life and category) to adjust productivity.
+        """
 
-        # Stima tempo di crescita medio per categoria
-        estimated_growth_days = category_growth_days.get(self.category, 60)
+        # Base yield per plant from category (default small plant = 0.2 kg)
+        base_yield = category_yield.get(self.category, 0.2)
 
-        # Aggiunge shelf life come indicatore di vigore
-        try:
-            shelf_life_days = float(self.shelf_life) if self.shelf_life is not None else 0
-        except (TypeError, ValueError):
-            shelf_life_days = 0
+        # growth time from the existing method
+        growth_time = self.estimate_growth_time()
 
-        # Combina i due fattori per stimare un "tempo di crescita effettivo"
-        effective_growth_time = estimated_growth_days + shelf_life_days / 2
+        # Normalization factor
+        growth_factor = growth_time / 100
 
-        # Normalizza e calcola la resa stimata
-        growth_factor = effective_growth_time / 100
-        base_yield = self.yield_per_plant or 0.2
-        estimated_yield = base_yield * (1 + growth_factor * 0.1)                     # se una pianta cresce più lentamente (base_days alto), probabilmente produrrà più biomassa (resa più alta).
-
-        return round(estimated_yield, 2)
-
-# --- Test ---
+        # Plants that grow longer generally produce slightly more yield
+        if growth_time > 70:
+            estimated_yield = base_yield * 1.1
+        elif growth_time < 30:
+            estimated_yield = base_yield * 0.9
+        else:
+            estimated_yield = base_yield
+        return (estimated_yield)
+    
+# Test
 if __name__ == "__main__":
     tomato = Plant(
-        "Tomato", "Fruit", "Summer", 90,
-        "Rich in vitamin C", "High nutrition",
-        2.5, "area", shelf_life=20
+        "Tomato", "Fruit", "Summer", 0.3,
+        50, 20, 2.5
     )
 
     print(f"{tomato.name} requires {tomato.estimate_area()} m² per plant.")
