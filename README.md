@@ -24,18 +24,14 @@ The program will present:
 ├── crop_p/                     # Main Python package
 │   ├── init.py                 # Marks the folder as a Python package
 │   ├── models.py               # Defines the Plant class (attributes and methods)
-│   ├── utils.py                # Utility functions for reading, cleaning, and transforming data
 │   ├── core.py                 # Core logic
-│   └── database.py             # Eventual database connection
+│   └── database.py             # Utility functions for reading, cleaning, and transforming data
 │
 ├── datasets/                   # Raw data files
 │   └── vegetables.csv          # Vegetable dataset used for calculations
 │
 ├── presentation/               # Presentation and analysis
 │   └── crop_analysis.ipynb     # Jupyter Notebook for testing, visualization, and reporting
-│
-├── tests/                      # Unit tests
-│   └── test_core.py            # Tests
 │
 ├── .gitignore                  # Git configuration to exclude virtual environments and cache files
 ├── requirements.txt            # List of required Python dependencies
