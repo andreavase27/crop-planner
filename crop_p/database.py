@@ -1,17 +1,14 @@
-import os, sys
+import os
+import sys
+import pandas as pd
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))            # with these three lines Python will always recognize the root of the project (crop-planner/) and the sub-files.
 
-import pandas as pd
-
 # loading the dataset
 file_path = '/Users/andreavaselli/Projects/crop-planner/datasets/vegetables.dataset.csv'
-plants_df = pd.read_csv(file_path)
-
-# understanding the dataset
-print(plants_df.head())
-plants_df.info()
-print(plants_df.describe())
+with open(file_path, "r") as f:
+    plants_df = pd.read_csv(f)
 
 # creating the list of vegetables categories
 official_categories = plants_df['Category'].dropna().unique().tolist()
@@ -19,21 +16,20 @@ print(official_categories)
 
 # Estimated area required per category (in m² per plant)
 category_area = {
-    'Root': 0.25,        # es. carote, rape → fitte ma con radice sottoterra
-    'Leafy': 0.20,       # es. lattuga, spinaci → fitte ma richiedono spazio per foglie
-    'Fruit': 0.50,       # es. pomodoro, zucchina, peperone → richiedono supporto e spazio
-    'Flower': 0.40,      # es. cavolfiore, broccoli → medie dimensioni
-    'Tuber': 0.45,       # es. patate, topinambur → più distanziate
-    'Legume': 0.35,      # es. fagioli, piselli → necessitano spazio verticale
-    'Bulb': 0.20,        # es. cipolla, aglio → compatte ma con distanza radici
-    'Grain': 0.30,       # es. mais, orzo → più spazio tra file
-    'Stem': 0.50,        # es. sedano, porro → mediamente alti, necessitano aria
-    'Herb': 0.15,        # es. basilico, prezzemolo → molto fitti
-    'Cactus': 0.80,      # piante lente e grandi, richiedono molto spazio
-    'Succulent': 0.70,   # simili ai cactus
-    'Fern': 0.60         # piante ornamentali o da ombra, più spazio laterale
+    'Root': 0.25,        # carrots, turnips → dense spacing but roots grow underground
+    'Leafy': 0.20,       # lettuce, spinach → compact but need room for leaves
+    'Fruit': 0.50,       # tomatoes, zucchini, peppers → need support and space
+    'Flower': 0.40,      # cauliflower, broccoli → medium-sized plants
+    'Tuber': 0.45,       # potatoes → require wider spacing
+    'Legume': 0.35,      # beans, peas → need vertical space/trellises
+    'Bulb': 0.20,        # onions, garlic → compact but need root spacing
+    'Grain': 0.30,       # corn, barley → more space between rows
+    'Stem': 0.50,        # celery, leek → taller plants, need airflow
+    'Herb': 0.15,        # basil, parsley → can grow very densely
+    'Cactus': 0.80,      # slow-growing, large plants → require plenty of space
+    'Succulent': 0.70,   # similar to cactus in spacing needs
+    'Fern': 0.60         # ornamental/shade plants → need more lateral space
 }
-
 # Estimated growth time (in days) per category
 category_growth_days = {
     'Root': 90,
