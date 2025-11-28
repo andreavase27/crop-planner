@@ -1,28 +1,35 @@
 
-import os, sys
+import os
+import sys
+import pandas as pd
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import pandas as pd
 from crop_p.database import plants_df, category_area, category_growth_days, category_yield
 
 class Plant:
     
-    def __init__(self, name, category, season, area_per_plant, growth_days, shelf_life, yield_per_plant):
-        self.name = name 
-        self.category = category
-        self.season = season
-        self.area_per_plant = area_per_plant
-        self.growth_days = growth_days
-        self.shelf_life = shelf_life
-        self.yield_per_plant = yield_per_plant
-        
+    def __init__(self, name, category, season, shelf_life):
+        self.name = name.strip()
+        self.category = category.strip().capitalize()
+        self.season = season.strip().capitalize()
+        try:
+            self.shelf_life = float(shelf_life)
+        except (TypeError, ValueError):
+            self.shelf_life = 0.0
+
+        # these will be computed
+        self.area_per_plant = None
+        self.growth_days = None
+        self.yield_per_plant = None
+
     def show_description(self):
         return f"{self.name} ({self.category}) grows in {self.season} and takes {self.growth_days} days."
     
     def estimate_area(self):
         """Estimate area per plant based on its category."""
-        key = self.category.capitalize()
+        key = self.category
         self.area_per_plant = category_area.get(key, 0.3)        # get the value corrresponding to the key, if not found return 0.3
         return self.area_per_plant
     
@@ -30,24 +37,16 @@ class Plant:
         """Estimate total growth time (in days) based on category and shelf life."""
         base_days = category_growth_days.get(self.category, 60)
 
-        # shelf_life per regolare la stima
-        if self.shelf_life is None:
-            shelf_life_days = 0
-        else:
-            try:
-                shelf_life_days = float(self.shelf_life)
-            except (TypeError, ValueError):
-                shelf_life_days = 0
-
-        # Regolazione: piante con shelf life lunga crescono un po' più lentamente
-        if shelf_life_days > 30:
+        # Adjustment: plants with a long shelf life grow a little slower
+        if self.shelf_life > 30:
             growth_time = base_days * 1.1
-        elif shelf_life_days < 10:
+        elif self.shelf_life < 10:
             growth_time = base_days * 0.9
         else:
             growth_time = base_days
 
-        return round(growth_time, 1)
+        self.growth_days = round(growth_time, 2)
+        return self.growth_days
     
     def estimate_yield(self):
         """
@@ -61,9 +60,6 @@ class Plant:
         # growth time from the existing method
         growth_time = self.estimate_growth_time()
 
-        # Normalization factor
-        growth_factor = growth_time / 100
-
         # Plants that grow longer generally produce slightly more yield
         if growth_time > 70:
             estimated_yield = base_yield * 1.1
@@ -71,26 +67,17 @@ class Plant:
             estimated_yield = base_yield * 0.9
         else:
             estimated_yield = base_yield
-        return (estimated_yield)
+        
+        self.yield_per_plant = round(estimated_yield, 2)
+        return self.yield_per_plant
     
-# Test
-if __name__ == "__main__":
-    tomato = Plant(
-        "Tomato", "Fruit", "Summer", 0.3,
-        50, 20, 2.5
-    )
-
-    print(f"{tomato.name} requires {tomato.estimate_area()} m² per plant.")
-    print(f"Estimated yield: {tomato.estimate_yield()} kg per plant.")
-    print(f"Estimated growth time: {tomato.estimate_growth_time()} days.")
-
 class Garden:
     """
-    Simula un orto:
-    - filtra le piante per stagione
-    - esclude piante non desiderate
-    - sceglie fino a max_categories tipi diversi (quelle con resa stimata più alta per categoria)
-    - riempie lo spazio in modo bilanciato 
+    The logic is:
+    - filter plants by selected season
+    - exclude unwanted plants
+    - choose categories based on max_categories (those with higher yield for each category)
+    - fill the available space in balanced way, that is, it circles adding an element for each category till there's space.
     """
 
     def __init__(self, total_area, season, people, max_categories=5, excluded_plants=None):
@@ -101,65 +88,74 @@ class Garden:
         self.excluded_plants = [p.lower() for p in excluded_plants] if excluded_plants else []
 
         self.plan = []   # [(name, category, units, yield_kg, area, growth_days)]
-        self.stats = {}  # riassunto finale
+        self.stats = {}  # final statistics
 
-    # 1 Filtra le piante per stagione
-    def _filter_by_season(self) -> pd.DataFrame:
+    # Filter by season
+    def filterSeason(self) -> pd.DataFrame:    #?
         df = plants_df.copy()
-        return df[df["Season"].astype(str).str.capitalize() == self.season]
+        return df[df["Season"].astype(str).str.capitalize() == self.season]          #filter the rows only ehwere the season coincides
+    
+    # Method for empty cases
+    def empty_results(self):                  # it works for example where there are no plants for the season or after the esclusion
+        self.plan = []
+        self.stats = {
+            "Plant types": 0,
+            "Total plants": 0,
+            "Used area (m²)": 0.0,
+            "Total yield (kg)": 0.0,
+            "Yield per person (kg)": 0.0,
+            "Average growth time (days)": 0.0,
+        }
 
-    # 2 Pianifica l’orto
+    # Plan the garden, main method
     def plan_garden(self):
-        df = self._filter_by_season()
+        df = self.filterSeason()
         if df.empty:
-            self._empty_results()
-            return self.stats
-        # Esclude piante indesiderate
+            self.empty_results()
+            return self.stats                  #if there are no plants in that period it returns empty stats
+        # excludes unwanted plants
         if self.excluded_plants:
-            df = df[~df["Name"].str.lower().isin(self.excluded_plants)]
+            df = df[~df["Name"].str.lower().isin(self.excluded_plants)]             # it creates a boolean serie with the names of the plants: if excluded =FALSE, then the rows of these plants are removed with df.
 
-        # Crea oggetti Plant e calcola rese e parametri
+        # creates plants objects and computes some parameters
         candidates = []
-        for _, row in df.iterrows():
+        for _, row in df.iterrows():                      # it converts each row in a plant object and adds some parameters like area, ykg, days. Then all the tuples are inserted in the candidates list.
             plant = Plant(
                 name=row["Name"],
                 category=row["Category"],
                 season=row["Season"],
-                area_per_plant=None,
-                growth_days=None,
                 shelf_life=row.get("Shelf Life (days)", 0),
-                yield_per_plant=None,
             )
             area = plant.estimate_area()
             ykg = plant.estimate_yield()
             days = plant.estimate_growth_time()
+            density = ykg / area
             if area <= 0 or ykg <= 0:
                 continue
-            density = ykg / area
             candidates.append((plant, area, ykg, days, density))
             
         if not candidates:
-            self._empty_results()
+            self.empty_results()
             return self.stats
 
-        # Raggruppa per categoria e sceglie la pianta con yield più alto
-        best_by_category = {}
+        # group by category and chose the plant with higher yield.
+        bestCategory = {}
         for plant, area, ykg, days, dens in candidates:
-            cat = plant.category
-            if cat not in best_by_category or ykg > best_by_category[cat][2]:
-                best_by_category[cat] = (plant, area, ykg, days, dens)
+            cat = plant.category           
+            if cat not in bestCategory or ykg > bestCategory[cat][2]:          # for each candidate, it decides if adding it to best candidates if the yiled is higher
+                bestCategory[cat] = (plant, area, ykg, days, dens)             # the result of this block is a dictionary, that has one plant for each category, that is the most productive of the category.
 
-        # ordina le migliori categorie per resa per pianta
-        selected = sorted(best_by_category.values(), key=lambda x: x[2], reverse=True)[:self.max_categories]
+        # sort the best categories by yield per plant
+        selected = sorted(bestCategory.values(), key=lambda x: x[2], reverse=True)[:self.max_categories]          # the result is a list that takes only the values of the bestCategory dictionary, in a decreasing order.
 
-        # aggiunge una unità di ogni tipo finché c'è spazio
+        # adds a unit for each category till there's space
         used_area = 0.0
         total_yield = 0.0
         units = [0] * len(selected)
 
         while True:
             placed_any = False
-            for i, (plant, area, ykg, days, dens) in enumerate(selected):
+            for i, (plant, area, ykg, days, dens) in enumerate(selected):           # it iterates selected getting the index and the value
                 if used_area + area <= self.total_area:
                     units[i] += 1
                     used_area += area
@@ -168,19 +164,24 @@ class Garden:
             if not placed_any:
                 break
             
-        # Statistiche finali
-        self.plan = []
-        total_growth_for_avg = 0.0
+        # final stats
+        self.plan = []                      # this list will be the final result for the user
+        growth_days_category = 0.0
         total_units = 0
 
-        for (plant, area, ykg, days, dens), u in zip(selected, units):
+        for (plant, area, ykg, days, dens), u in zip(selected, units):            #for each category/plant this keeps togheter both the tuple and the unit number
             if u == 0:
                 continue
-            self.plan.append((plant.name, plant.category, u, ykg, area, days))
-            total_units += u
-            total_growth_for_avg += days
+            
+            # gives the health statistics by taking them from the original dataset
+            health = plants_df.loc[plants_df["Name"] == plant.name, "Health Benefits"].values         # this finds the health benefits for each plant selected in a numpy array.
+            health = health[0] if len(health) > 0 else "N/A"                                          # check if tehre are no health benefits, return N/A
 
-        avg_growth = round(total_growth_for_avg / len(self.plan), 1) if self.plan else 0.0
+            self.plan.append((plant.name, plant.category, u, ykg, area, days, health))                # this tuple represents a row of the final result
+            total_units += u
+            growth_days_category += days                                                              # this is the sum of the grow days for each plant
+
+        avg_growth = round(growth_days_category / len(self.plan), 1) if self.plan else 0.0            # this is the average growth days for each plant
         ypp = round(total_yield / self.people, 2) if self.people else 0.0
 
         self.stats = {
@@ -194,41 +195,65 @@ class Garden:
 
         return self.stats
 
-    # Metodo per casi vuoti
-    def _empty_results(self):
-        self.plan = []
-        self.stats = {
-            "Plant types": 0,
-            "Total plants": 0,
-            "Used area (m²)": 0.0,
-            "Total yield (kg)": 0.0,
-            "Yield per person (kg)": 0.0,
-            "Average growth time (days)": 0.0,
-        }
-
-    # Stampa riepilogo finale
+    # print final summary
     def summary(self):
-        stats = self.plan_garden()
+        stats = self.plan_garden()           
 
-        print("🌿 GARDEN SUMMARY 🌿")
-        print(f"Season: {self.season}")
-        print(f"Total area: {self.total_area} m²")
-        print(f"People: {self.people}")
-        print(f"Max categories: {self.max_categories}")
+        print("\n=== GARDEN SUMMARY ===")
+        print("Season:", self.season)
+        print("Total area (m²):", self.total_area)
+        print("People:", self.people)
+        print("Max categories:", self.max_categories)
         if self.excluded_plants:
-            print(f"Excluded plants: {', '.join(self.excluded_plants)}")
-        print("-" * 95)
-        print(f"{'Plant':<20}{'Category':<15}{'Units':<8}{'Area (m²)':<12}"
-              f"{'Yield/plant (kg)':<17}{'Growth (days)':<15}")
-        print("-" * 95)
+            print("Excluded plants:", ", ".join(self.excluded_plants))
 
-        for name, category, u, ykg, area, days in self.plan:
-            print(f"{name:<20}{category:<15}{u:<8}{area:<12.2f}"
-                  f"{ykg:<17.2f}{days:<15.1f}")
+        print("\nPlants chosen:")
+        print("-----------------------------------------")
+        for name, category, u, ykg, area, days, health in self.plan:
+            print(f"{name} ({category}) - units={u}, area={area}, yield={ykg}, days={days}")
+            print("  Health:", health)
+        print("-----------------------------------------")
 
-        print("-" * 95)
+        print("\nStats:")
         for k, v in stats.items():
             print(f"{k}: {v}")
-        print("-" * 95)
+
+class PlantInfoRetriever:
+    """
+    Retrives some important information about a seleted plant.
+    """
+
+    def __init__(self, dataframe):
+        self.df = dataframe                  # it will be necessary to specify the dataframe "plants_df"
+
+    def get_info(self, plant_name: str) -> dict:
+        """
+        Returns a dictionary with some important information
+        for a specific plant.
+        """
+
+        # Normalize to avoid mismatch
+        name = plant_name.strip().lower()              # normalizing the name
+
+        match = self.df[self.df["Name"].str.lower() == name]           # compares every name of plant of the dataframe and keeps only the row with the same name.
+
+        if match.empty:
+            return {"error": f"Plant '{plant_name}' not found in the dataset."}
+
+        row = match.iloc[0]          # converts the first row of the filtered dataframe and converts it into a serie
+
+        info = {
+            "Name": row["Name"],
+            "Category": row["Category"],
+            "Season": row["Season"],
+            "Origin": row["Origin"],
+            "Availability": row["Availability"],
+            "Shelf Life (days)": row["Shelf Life (days)"],
+            "Storage Requirements": row["Storage Requirements"],
+            "Growing Conditions": row["Growing Conditions"],
+            "Health Benefits": row["Health Benefits"],
+        }
+
+        return info
 
 
