@@ -5,7 +5,7 @@ By combining data on plant characteristics (such as required area, growing time,
 
 INPUTS:
 
-The user will be asked to give three information:
+The user will be asked to give four information:
 - season in which the user wants to start the garden;
 - how many squared meters are avaiable for the garden;
 - number of types of vegetables to be grown;  (as type we mean the specific vegetable, as eggplant or lattuce)
@@ -29,9 +29,6 @@ The program will present:
 │
 ├── datasets/                   # Raw data files
 │   └── vegetables.csv          # Vegetable dataset used for calculations
-│
-├── presentation/               # Presentation and analysis
-│   └── crop_analysis.ipynb     # Jupyter Notebook for testing, visualization, and reporting
 │
 ├── .gitignore                  # Git configuration to exclude virtual environments and cache files
 ├── requirements.txt            # List of required Python dependencies
