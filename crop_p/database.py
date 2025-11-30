@@ -6,13 +6,18 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))            # with these three lines Python will always recognize the root of the project (crop-planner/) and the sub-files.
 
 # loading the dataset
-file_path = '/Users/andreavaselli/Projects/crop-planner/datasets/vegetables.dataset.csv'
-with open(file_path, "r") as f:
-    plants_df = pd.read_csv(f)
+file_path = os.path.join(
+    os.path.dirname(__file__),
+    "..",
+    "datasets",
+    "vegetables.dataset.csv"                
+)
+file_path = os.path.abspath(file_path)         # this is made so that every machine can run the programm, because the dataset is found automatically.
+
+plants_df = pd.read_csv(file_path)
 
 # creating the list of vegetables categories
 official_categories = plants_df['Category'].dropna().unique().tolist()
-print(official_categories)
 
 # Estimated area required per category (in m² per plant)
 category_area = {
