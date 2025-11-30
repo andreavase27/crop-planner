@@ -42,7 +42,7 @@ This method ensures almost realistic estimates even in the absence of detailed p
 
 ## Installation 
 
-Assuming Python is installed in the machine, from the shell:
+Assuming Python and Git are installed in the machine, from the shell:
 
 1. Clone the repository.
 ```
