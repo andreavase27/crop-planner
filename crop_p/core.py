@@ -1,8 +1,8 @@
 import os
 import sys
 
-# aggiungo manualmente la cartella principale al path
-# così posso importare i file del progetto anche se eseguo questo script direttamente
+# I manually add the main folder to the path
+# so I can import the project files even if I run this script directly
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -23,7 +23,7 @@ def run_simulation(total_area, season, people, max_categories=5, exclude_plants=
         excluded_plants=exclude_plants,
     )
 
-    # stampa il riassunto direttamente
+    # print the summary
     garden.summary()
     return garden
 
