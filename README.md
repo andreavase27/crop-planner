@@ -2,19 +2,19 @@
 
 Crop-planner is a Python-based analytical tool that helps the user in developing a vegetable garden.
 The user can interact with the program through a web app developed with Streamlit in app.py. 
-It is divided in two section:
+It is divided into two section:
 
 # 1. Garden Planner
 
-The Garden Planner section designed to help users plan an optimal vegetable garden based on available land area, number of people, and growing season.
+The Garden Planner section is designed to help users plan an optimal vegetable garden based on available land area, number of people, and growing season.
 By combining data on plant characteristics (such as required area, growing time, yield, and seasonal suitability), defined in the class "Plant", the program, thanks to the class "Garden", estimates the most efficient crop mix that maximizes total yield and provides an estimated amount of vegetables per person.
 
 INPUT:
 
 The user will be asked to give the following information:
 - season in which the user wants to start the garden;
-- how many squared meters are available for the garden;
-- number of categories of vegetables to be grown (as type we mean tuber, legume, fruit, leafy, etc...);
+- how many square meters are available for the garden;
+- number of categories of vegetables to be grown (as category we mean tuber, legume, fruit, leafy, etc...);
 - how many people are expected to be fed with that harvest;
 - any unwanted plants.
 
@@ -22,7 +22,7 @@ OUTPUT:
 
 The program will present:
 - the exact number of plants that can be planted, organized by the number of categories desired;
-  the number of plants and the mix of vegetables is made to maximise the quantity(kg);
+  the number of plants and the mix of vegetables are designed to maximize the quantity (kg);
 - yield per plant and total yield;
 - expected growth days.
 
