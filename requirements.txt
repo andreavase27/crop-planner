@@ -1,20 +1,6 @@
 # Requirements for Crop Planner
 # Install with: pip install -r requirements.txt
 
-# Core data science stack
 pandas
-numpy
 matplotlib
-seaborn
-scikit-learn
-
-# Database connectivity
-SQLAlchemy
-psycopg2-binary
-
-# Jupyter environment
-jupyter
-
-# web app
 streamlit
-matplotlib
