@@ -66,8 +66,7 @@ The dataset is included in the repository (`datasets/vegetables.dataset.csv`), s
 ├── web_app/
 │   └── app.py                     # Streamlit web app
 ├── datasets/
-│   └── vegetables.dataset.csv     # Vegetable dataset (Kaggle)
-├── screenshots/                   # App screenshots used in this README
+│   └── vegetables.dataset.csv     # Vegetable dataset 
 ├── requirements.txt
 └── README.md
 ```
