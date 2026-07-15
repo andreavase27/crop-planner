@@ -55,7 +55,7 @@ category_growth_days = {
 # Estimated average yield (kg per plant) by category
 category_yield = {
     'Root': 0.4,
-    'Leaf': 0.2,
+    'Leafy': 0.2,
     'Fruit': 2.0,
     'Flower': 0.6,
     'Tuber': 1.5,
