@@ -16,17 +16,17 @@ Plans an optimal vegetable garden based on land area, number of people, and grow
 
 **Input** — season, available area (m²), number of vegetable categories (tuber, legume, fruit, leafy, …), number of people to feed, and any plants to exclude.
 
-![alt text](image.png)
+<img width="1431" height="655" alt="image" src="https://github.com/user-attachments/assets/3470ef32-e09a-47c8-9294-e62ca574e6b2" />
 
 **Output** — the number of plants to grow per category (mix optimized to maximize total kg), yield per plant and total yield, and expected growing days.
 
-![alt text](image-1.png)
+<img width="1438" height="661" alt="image" src="https://github.com/user-attachments/assets/f0aa91cb-1da0-4c99-8451-efe0258f4846" />
 
 ### 2. Plant Explorer
 
 Detailed information for each plant in the dataset: category, season, origin, availability, shelf life, storage requirements, growing conditions, and health benefits.
 
-![alt text](image-2.png)
+<img width="1437" height="784" alt="image" src="https://github.com/user-attachments/assets/039d3467-6844-4f50-8559-f936457a49ac" />
 
 ## How the Estimates Work (and Their Limits)
 
